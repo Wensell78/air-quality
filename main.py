@@ -2,6 +2,7 @@ import time
 import json
 import os
 import requests
+from datetime import datetime
 
 from config import API_KEY, BASE_URL, REQUEST_TIMEOUT_SECONDS, MIN_REQUEST_INTERVAL_SECONDS, LOG_DIR, CITIES
 
@@ -72,6 +73,35 @@ def fetch_air_quality(lat, lon, city_name):
         "co": entry["components"].get("co"),
     }
 
+# Сохранение данных в JSON файл
+def save_air_quality_json(city_name, data): 
+    history_dir = os.path.join(LOG_DIR, "history")
+    os.makedirs(history_dir, exist_ok=True)
+
+    filename = os.path.join(history_dir, f"{city_name}.json")
+
+    if os.path.isfile(filename):
+        with open(filename, "r", encoding="utf-8") as f:
+            try:
+                history = json.load(f)
+            except json.JSONDecodeError:
+                history = []
+    else:
+        history = []
+
+    entry = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "city": city_name,
+        "data": data
+    }
+
+    history.append(entry)
+
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False, indent=4)
+
+    
+
 
 # Пример использования
 if __name__ == "__main__":
@@ -85,5 +115,7 @@ if __name__ == "__main__":
         print(f"Данные по {city['name']}:")
         for k, v in result.items():
             print(f"  {k}: {v}")
+
+        save_air_quality_json(city["name"], result)
     else:
         print(f"Не удалось получить данные по {city['name']}")
