@@ -90,7 +90,7 @@ def save_air_quality_json(city_name, data):
         history = []
 
     entry = {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": datetime.now().isoformat(),
         "city": city_name,
         "data": data
     }
@@ -103,19 +103,30 @@ def save_air_quality_json(city_name, data):
     
 
 
-# Пример использования
 if __name__ == "__main__":
-    city = CITIES[9]
-    lat = city["lat"]
-    lon = city["lon"]
+    INTERVAL = 600  # 10 минут
 
-    result = fetch_air_quality(lat, lon, city_name=city["name"])
+    print("=== Автоматический сбор данных включён ===")
 
-    if result:
-        print(f"Данные по {city['name']}:")
-        for k, v in result.items():
-            print(f"  {k}: {v}")
+    while True:
+        for city in CITIES:
+            name = city["name"]
+            lat = city["lat"]
+            lon = city["lon"]
 
-        save_air_quality_json(city["name"], result)
-    else:
-        print(f"Не удалось получить данные по {city['name']}")
+            print(f"\nПолучаю данные по {name}...")
+
+            result = fetch_air_quality(lat, lon, name)
+
+            if result:
+                print(f"Данные по {name}:")
+                for k, v in result.items():
+                    print(f"  {k}: {v}")
+                save_air_quality_json(name, result)
+            else:
+                print(f"Данные по {name} получить не удалось.")
+
+        print("\nОжидание 10 минут...\n")
+        time.sleep(INTERVAL)
+
+
