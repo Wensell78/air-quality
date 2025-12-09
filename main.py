@@ -1,23 +1,48 @@
+import os
+import sys
 import time
 import json
-import os
 import requests
 from datetime import datetime
 
 from config import API_KEY, BASE_URL, REQUEST_TIMEOUT_SECONDS, MIN_REQUEST_INTERVAL_SECONDS, LOG_DIR, CITIES
+from PySide6.QtWidgets import QApplication
+from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtCore import QLibraryInfo, QUrl, QObject, Signal, Slot
+
+# Устанавливаем путь к плагинам Qt (нужно на некоторых системах)
+os.environ["QT_PLUGIN_PATH"] = QLibraryInfo.path(QLibraryInfo.PluginsPath)
+
 
 _last_request_time = {}
 
+
+# Контроллер для взаимодействия с QML
+class Controller(QObject):
+    continueClicked = Signal()
+
+    def __init__(self):
+        super().__init__()
+
+    @Slot()
+    def on_continue_clicked(self):
+        """Обработчик нажатия кнопки "Продолжить" из QML"""
+        print("Пользователь нажал 'Продолжить'")
+        self.continueClicked.emit()
+
+
 os.makedirs(LOG_DIR, exist_ok=True)
+
 
 # Логирование ошибок
 def log_error(city_name, error_message):
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     logfile = os.path.join(LOG_DIR, "errors.log")
 
-    with open(logfile, "a") as f:
+    with open(logfile, "a", encoding="utf-8") as f:
         f.write(f"[{timestamp}] {city_name}: {error_message}\n")
     
+
 # Отправка запроса и парсинг данных
 def fetch_air_quality(lat, lon, city_name):
     now = time.time()
@@ -26,7 +51,7 @@ def fetch_air_quality(lat, lon, city_name):
         if elapsed < MIN_REQUEST_INTERVAL_SECONDS:
             print(f"Слишком частый запрос для {city_name}.")
             return None
-        
+    
     _last_request_time[city_name] = time.time()
     
     url = f"{BASE_URL}?lat={lat}&lon={lon}&appid={API_KEY}"
@@ -73,8 +98,9 @@ def fetch_air_quality(lat, lon, city_name):
         "co": entry["components"].get("co"),
     }
 
+
 # Сохранение данных в JSON файл
-def save_air_quality_json(city_name, data): 
+def save_air_quality_json(city_name, data):
     history_dir = os.path.join(LOG_DIR, "history")
     os.makedirs(history_dir, exist_ok=True)
 
@@ -92,7 +118,7 @@ def save_air_quality_json(city_name, data):
     entry = {
         "timestamp": datetime.now().isoformat(),
         "city": city_name,
-        "data": data
+        "data": data,
     }
 
     history.append(entry)
@@ -100,33 +126,35 @@ def save_air_quality_json(city_name, data):
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=4)
 
-    
 
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    engine = QQmlApplicationEngine()
 
-if __name__ == "__main__":
-    INTERVAL = 600  # 10 минут
+    # Создаём контроллер и передаём его в QML
+    controller = Controller()
+    engine.rootContext().setContextProperty("controller", controller)
 
-    print("=== Автоматический сбор данных включён ===")
+    # Загружаем QML
+    qml_file = os.path.join(os.path.dirname(__file__), 'main.qml')
+    engine.load(QUrl.fromLocalFile(qml_file))
 
-    while True:
-        for city in CITIES:
-            name = city["name"]
-            lat = city["lat"]
-            lon = city["lon"]
+    if not engine.rootObjects():
+        print("Ошибка загрузки QML.")
+        sys.exit(-1)
 
-            print(f"\nПолучаю данные по {name}...")
+    # Получаем корневой объект (окно) и показываем его в развернутом виде из Python
+    root_objects = engine.rootObjects()
+    if root_objects:
+        root = root_objects[0]
+        try:
+            root.showMaximized()
+        except Exception:
+            try:
+                root.setProperty('visible', True)
+            except Exception:
+                pass
 
-            result = fetch_air_quality(lat, lon, name)
-
-            if result:
-                print(f"Данные по {name}:")
-                for k, v in result.items():
-                    print(f"  {k}: {v}")
-                save_air_quality_json(name, result)
-            else:
-                print(f"Данные по {name} получить не удалось.")
-
-        print("\nОжидание 10 минут...\n")
-        time.sleep(INTERVAL)
+    sys.exit(app.exec())
 
 

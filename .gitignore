@@ -1,4 +1,5 @@
 venv/
 data/
 config.py
-_pycache__/
+__pycache__/
+logo/logo.ai
