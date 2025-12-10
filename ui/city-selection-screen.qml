@@ -242,13 +242,16 @@ Rectangle {
                 delegate: Rectangle {
                     width: ListView.view.width
                     height: 50
-                    color: mouseArea.containsMouse ? 
-                           (mainWindow.isDarkTheme ? "#3d3d3d" : "#e8f5e9") : 
-                           "transparent"
+                    color: "transparent"
                     radius: 4
                     
-                    Behavior on color {
-                        ColorAnimation { duration: 200; easing.type: Easing.InOutQuad }
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 3
+                        color: mouseArea.containsMouse ? 
+                               (mainWindow.isDarkTheme ? "#3d3d3d" : "#e8f5e9") : 
+                               "transparent"
+                        radius: 4
                     }
                     
                     RowLayout {
@@ -261,21 +264,6 @@ Rectangle {
                             font.pixelSize: 16
                             color: mainWindow.isDarkTheme ? "#ffffff" : "#000000"
                             Layout.fillWidth: true
-                            
-                            Behavior on color {
-                                ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
-                            }
-                        }
-                        
-                        Text {
-                            text: "→"
-                            font.pixelSize: 14
-                            color: mainWindow.isDarkTheme ? "#666666" : "#999999"
-                            opacity: mouseArea.containsMouse ? 1 : 0.3
-                            
-                            Behavior on opacity {
-                                NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
-                            }
                         }
                     }
                     
