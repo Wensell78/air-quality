@@ -12,6 +12,19 @@ Window {
     // Переменная для отслеживания текущей темы
     property bool isDarkTheme: false
     
+    // Выбранный город (записывается из экрана выбора)
+    property string selectedCity: ""
+    property string selectedCityRu: ""
+    
+    // Данные по городу (заглушки — будут заполняться бэкендом позже)
+    property int aqi: 42
+    property string aqiCategory: "Хорошо"
+    property color aqiColor: "#4caf50"
+    property var pollutants: ({ pm2_5: 12, pm10: 20, o3: 15, no2: 8, so2: 3, co: 0.4 })
+    property string recommendation: "Воздух в норме — можно гулять на улице."
+    // История AQI (массив последних значений) — для передачи из Python в QML
+    property var aqiHistory: []
+    
     // Отображение встроенных кнопок окна
     flags: Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint
     
@@ -54,11 +67,13 @@ Window {
             screenLoader.source = "welcome-screen.qml"
         } else if (currentScreen === "city-selection") {
             screenLoader.source = "city-selection-screen.qml"
+        } else if (currentScreen === "city") {
+            screenLoader.source = "city-screen.qml"
         }
     }
     
     // Инициализируем первый экран
     Component.onCompleted: {
-        currentScreen = "welcome"
+        // Экран будет установлен из Python через load_and_apply_preferences()
     }
 }

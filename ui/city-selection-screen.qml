@@ -273,8 +273,15 @@ Rectangle {
                         hoverEnabled: true
                         
                         onClicked: {
-                            mainWindow.currentScreen = "welcome"
+                            // Сохраняем выбранный город в основном окне и переходим на экран города
+                            mainWindow.selectedCity = cityEng
+                            mainWindow.selectedCityRu = cityRu
                             controller.on_city_selected(cityEng)
+                            // Сохраняем выбор в файл
+                            controller.save_user_preferences(cityEng)
+                            // Загружаем данные из истории
+                            controller.fetchLocalHistory(cityEng)
+                            mainWindow.currentScreen = "city"
                         }
                     }
                 }

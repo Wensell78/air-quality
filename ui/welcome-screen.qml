@@ -171,6 +171,8 @@ Rectangle {
             onClicked: {
                 // Переключаем тему с анимацией
                 mainWindow.isDarkTheme = !mainWindow.isDarkTheme
+                // Сохраняем тему (если город уже был выбран ранее)
+                controller.save_theme_preference()
             }
             
             // Эффект при наведении - легкое изменение масштаба
