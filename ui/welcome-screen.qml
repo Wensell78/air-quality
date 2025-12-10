@@ -2,114 +2,95 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-Window {
+Rectangle {
     id: root
-    visible: false
-    width: 900
-    height: 700
-    color: root.isDarkTheme ? "#1e1e1e" : "#ffffff"
-    title: "Oxy"
+    anchors.fill: parent
+    color: mainWindow.isDarkTheme ? "#1e1e1e" : "#ffffff"
     
-    // Переменная для отслеживания текущей темы
-    property bool isDarkTheme: false
+    // Плавная анимация смены цвета фона
+    Behavior on color {
+        ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
+    }
     
-    // Отображение встроенных кнопок окна
-    flags: Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint
-    
-    minimumWidth: 600
-    minimumHeight: 500
-
-    
-    // Основной фон (адаптирует цвет в зависимости от темы)
+    // Декоративный элемент в верхнем правом углу
     Rectangle {
-        anchors.fill: parent
-        color: root.isDarkTheme ? "#1e1e1e" : "#ffffff"
+        width: 400
+        height: 400
+        radius: 200
+        color: mainWindow.isDarkTheme ? "#2d5016" : "#e8f5f0"
+        opacity: mainWindow.isDarkTheme ? 0.15 : 0.3
         
-        // Плавная анимация смены цвета фона
+        // Плавная анимация смены цвета декоративного элемента
         Behavior on color {
             ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
         }
         
-        // Декоративный элемент в верхнем правом углу
-        Rectangle {
-            width: 400
-            height: 400
-            radius: 200
-            color: root.isDarkTheme ? "#2d5016" : "#e8f5f0"
-            opacity: root.isDarkTheme ? 0.15 : 0.3
-            
-            // Плавная анимация смены цвета декоративного элемента
-            Behavior on color {
-                ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
-            }
-            
-            Behavior on opacity {
-                NumberAnimation { duration: 400; easing.type: Easing.InOutQuad }
-            }
-            
-            anchors.top: parent.top
-            anchors.right: parent.right
-            anchors.rightMargin: -100
-            anchors.topMargin: -100
-            
-            // Анимация масштабирования
-            SequentialAnimation on opacity {
-                running: true
-                loops: Animation.Infinite
-                NumberAnimation {
-                    from: 0.3
-                    to: 0.5
-                    duration: 3000
-                }
-                NumberAnimation {
-                    from: 0.5
-                    to: 0.3
-                    duration: 3000
-                }
-            }
+        Behavior on opacity {
+            NumberAnimation { duration: 400; easing.type: Easing.InOutQuad }
         }
         
-        // Декоративный элемент в нижнем левом углу
-        Rectangle {
-            width: 300
-            height: 300
-            radius: 150
-            color: root.isDarkTheme ? "#1b5e20" : "#c8e6c9"
-            opacity: root.isDarkTheme ? 0.1 : 0.2
-            
-            // Плавная анимация смены цвета декоративного элемента
-            Behavior on color {
-                ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.rightMargin: -100
+        anchors.topMargin: -100
+        
+        // Анимация мигания
+        SequentialAnimation on opacity {
+            running: true
+            loops: Animation.Infinite
+            NumberAnimation {
+                from: mainWindow.isDarkTheme ? 0.15 : 0.3
+                to: mainWindow.isDarkTheme ? 0.25 : 0.4
+                duration: 3000
             }
-            
-            Behavior on opacity {
-                NumberAnimation { duration: 400; easing.type: Easing.InOutQuad }
-            }
-            
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.leftMargin: -50
-            anchors.bottomMargin: -50
-            
-            // Анимация масштабирования
-            SequentialAnimation on opacity {
-                running: true
-                loops: Animation.Infinite
-                NumberAnimation {
-                    from: 0.2
-                    to: 0.35
-                    duration: 4000
-                }
-                NumberAnimation {
-                    from: 0.35
-                    to: 0.2
-                    duration: 4000
-                }
+            NumberAnimation {
+                from: mainWindow.isDarkTheme ? 0.25 : 0.4
+                to: mainWindow.isDarkTheme ? 0.15 : 0.3
+                duration: 3000
             }
         }
     }
     
-    // Свитчер темы в правом верхнем углу - Toggle Switch
+    // Декоративный элемент в нижнем левом углу
+    Rectangle {
+        width: 300
+        height: 300
+        radius: 150
+        color: mainWindow.isDarkTheme ? "#1b5e20" : "#c8e6c9"
+        opacity: mainWindow.isDarkTheme ? 0.1 : 0.2
+        
+        // Плавная анимация смены цвета декоративного элемента
+        Behavior on color {
+            ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
+        }
+        
+        Behavior on opacity {
+            NumberAnimation { duration: 400; easing.type: Easing.InOutQuad }
+        }
+        
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.leftMargin: -50
+        anchors.bottomMargin: -50
+        
+        // Анимация мигания
+        SequentialAnimation on opacity {
+            running: true
+            loops: Animation.Infinite
+            NumberAnimation {
+                from: mainWindow.isDarkTheme ? 0.1 : 0.2
+                to: mainWindow.isDarkTheme ? 0.2 : 0.3
+                duration: 3000
+            }
+            NumberAnimation {
+                from: mainWindow.isDarkTheme ? 0.2 : 0.3
+                to: mainWindow.isDarkTheme ? 0.1 : 0.2
+                duration: 3000
+            }
+        }
+    }
+    
+    // Свитчер темы в правом верхнем углу
     Rectangle {
         id: themeToggle
         anchors.top: parent.top
@@ -119,8 +100,8 @@ Window {
         width: 100
         height: 50
         radius: 25
-        color: root.isDarkTheme ? "#2d3436" : "#e8eef2"
-        border.color: root.isDarkTheme ? "#636e72" : "#bdc3c7"
+        color: mainWindow.isDarkTheme ? "#2d3436" : "#e8eef2"
+        border.color: mainWindow.isDarkTheme ? "#636e72" : "#bdc3c7"
         border.width: 2
         z: 100
         
@@ -142,7 +123,7 @@ Window {
             color: "#ffffff"
             
             // Позиция слайдера зависит от темы
-            x: root.isDarkTheme ? 54 : 4
+            x: mainWindow.isDarkTheme ? 54 : 4
             y: 4
             
             // Плавная анимация движения слайдера
@@ -157,8 +138,8 @@ Window {
             y: 10
             width: 30
             height: 30
-            source: "icons/sun.svg"
-            opacity: root.isDarkTheme ? 0.3 : 1
+            source: "../icons/sun.svg"
+            opacity: mainWindow.isDarkTheme ? 0.3 : 1
             
             // Плавная анимация прозрачности
             Behavior on opacity {
@@ -172,8 +153,8 @@ Window {
             y: 10
             width: 30
             height: 30
-            source: "icons/moon.svg"
-            opacity: root.isDarkTheme ? 1 : 0.3
+            source: "../icons/moon.svg"
+            opacity: mainWindow.isDarkTheme ? 1 : 0.3
             
             // Плавная анимация прозрачности
             Behavior on opacity {
@@ -189,7 +170,7 @@ Window {
             
             onClicked: {
                 // Переключаем тему с анимацией
-                root.isDarkTheme = !root.isDarkTheme
+                mainWindow.isDarkTheme = !mainWindow.isDarkTheme
             }
             
             // Эффект при наведении - легкое изменение масштаба
@@ -245,7 +226,7 @@ Window {
             
             Image {
                 id: logo
-                source: "logo/logo.svg"
+                source: "../logo/logo.svg"
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: 160
                 Layout.preferredHeight: 160
@@ -302,7 +283,7 @@ Window {
             Layout.alignment: Qt.AlignHCenter
             font.pixelSize: 44
             font.weight: Font.Bold
-            color: root.isDarkTheme ? "#4caf50" : "#1b5e20"
+            color: mainWindow.isDarkTheme ? "#4caf50" : "#1b5e20"
             font.family: "Segoe UI, Arial, sans-serif"
             
             // Плавная анимация смены цвета заголовка
@@ -334,7 +315,7 @@ Window {
             horizontalAlignment: Text.AlignHCenter
             font.pixelSize: 18
             font.family: "Segoe UI, Arial, sans-serif"
-            color: root.isDarkTheme ? "#cccccc" : "#555555"
+            color: mainWindow.isDarkTheme ? "#cccccc" : "#555555"
             lineHeight: 1.6
             wrapMode: Text.WordWrap
             
@@ -371,14 +352,14 @@ Window {
             Layout.preferredWidth: 240
             Layout.preferredHeight: 56
             
-            color: btnMouse.containsMouse ? (root.isDarkTheme ? "#66bb6a" : "#2e7d32") : (root.isDarkTheme ? "#43a047" : "#4caf50")
+            color: btnMouse.containsMouse ? (mainWindow.isDarkTheme ? "#66bb6a" : "#2e7d32") : (mainWindow.isDarkTheme ? "#43a047" : "#4caf50")
             radius: 12
             
             // Тень под кнопкой
             Rectangle {
                 anchors.fill: parent
                 anchors.margins: -4
-                color: root.isDarkTheme ? "#00000045" : "#00000015"
+                color: mainWindow.isDarkTheme ? "#00000045" : "#00000015"
                 radius: parent.radius
                 z: -1
                 
@@ -425,7 +406,8 @@ Window {
                 onClicked: {
                     // Эффект нажатия
                     btnClickAnim.start()
-                    controller.on_continue_clicked()
+                    // Переходим на экран выбора города
+                    mainWindow.currentScreen = "city-selection"
                 }
             }
             

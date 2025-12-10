@@ -20,15 +20,31 @@ _last_request_time = {}
 # Контроллер для взаимодействия с QML
 class Controller(QObject):
     continueClicked = Signal()
+    citySelected = Signal(str)  # Сигнал для выбора города
 
-    def __init__(self):
+    def __init__(self, engine):
         super().__init__()
+        self.engine = engine
+        self.main_window = None
 
     @Slot()
     def on_continue_clicked(self):
         """Обработчик нажатия кнопки "Продолжить" из QML"""
         print("Пользователь нажал 'Продолжить'")
         self.continueClicked.emit()
+        self.go_to_city_selection()
+    
+    def go_to_city_selection(self):
+        """Переходит на экран выбора города"""
+        if self.main_window:
+            self.main_window.setProperty('currentScreen', 'city-selection')
+    
+    @Slot(str)
+    def on_city_selected(self, city_name):
+        """Обработчик выбора города"""
+        print(f"Выбран город: {city_name}")
+        self.citySelected.emit(city_name)
+        # Здесь можно добавить логику для загрузки данных о качестве воздуха
 
 
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -131,29 +147,41 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     engine = QQmlApplicationEngine()
 
-    # Создаём контроллер и передаём его в QML
-    controller = Controller()
+    # Создаём контроллер и передаём ему engine для управления экранами
+    controller = Controller(engine)
     engine.rootContext().setContextProperty("controller", controller)
 
-    # Загружаем QML
-    qml_file = os.path.join(os.path.dirname(__file__), 'main.qml')
+    # Загружаем главное окно с системой навигации
+    qml_file = os.path.join(os.path.dirname(__file__), 'ui', 'main-window.qml')
+    print(f"Загружаю: {qml_file}")
     engine.load(QUrl.fromLocalFile(qml_file))
 
     if not engine.rootObjects():
         print("Ошибка загрузки QML.")
+        # Выводим ошибки загрузки
+        for error in engine.errors():
+            print(f"QML Error: {error}")
         sys.exit(-1)
 
-    # Получаем корневой объект (окно) и показываем его в развернутом виде из Python
+    print("QML загружен успешно")
+    
+    # Получаем корневой объект (главное окно) и показываем его в развернутом виде
     root_objects = engine.rootObjects()
     if root_objects:
         root = root_objects[0]
+        controller.main_window = root
+        # Передаём ссылку на главное окно через контекст для доступа из компонентов
+        engine.rootContext().setContextProperty("mainWindow", root)
+        print("Главное окно найдено")
         try:
             root.showMaximized()
-        except Exception:
+            print("Окно развернуто")
+        except Exception as e:
+            print(f"Ошибка при showMaximized(): {e}")
             try:
                 root.setProperty('visible', True)
-            except Exception:
-                pass
+            except Exception as e2:
+                print(f"Ошибка при setProperty visible: {e2}")
 
     sys.exit(app.exec())
 
