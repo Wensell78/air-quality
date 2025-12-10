@@ -7,8 +7,11 @@ Window {
     visible: false
     width: 900
     height: 700
-    color: "#ffffff"
+    color: root.isDarkTheme ? "#1e1e1e" : "#ffffff"
     title: "Oxy"
+    
+    // Переменная для отслеживания текущей темы
+    property bool isDarkTheme: false
     
     // Отображение встроенных кнопок окна
     flags: Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint
@@ -17,18 +20,33 @@ Window {
     minimumHeight: 500
 
     
-    // Градиентный фон
+    // Основной фон (адаптирует цвет в зависимости от темы)
     Rectangle {
         anchors.fill: parent
-        color: "#ffffff"
+        color: root.isDarkTheme ? "#1e1e1e" : "#ffffff"
+        
+        // Плавная анимация смены цвета фона
+        Behavior on color {
+            ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
+        }
         
         // Декоративный элемент в верхнем правом углу
         Rectangle {
             width: 400
             height: 400
             radius: 200
-            color: "#e8f5f0"
-            opacity: 0.3
+            color: root.isDarkTheme ? "#2d5016" : "#e8f5f0"
+            opacity: root.isDarkTheme ? 0.15 : 0.3
+            
+            // Плавная анимация смены цвета декоративного элемента
+            Behavior on color {
+                ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
+            }
+            
+            Behavior on opacity {
+                NumberAnimation { duration: 400; easing.type: Easing.InOutQuad }
+            }
+            
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.rightMargin: -100
@@ -56,8 +74,18 @@ Window {
             width: 300
             height: 300
             radius: 150
-            color: "#c8e6c9"
-            opacity: 0.2
+            color: root.isDarkTheme ? "#1b5e20" : "#c8e6c9"
+            opacity: root.isDarkTheme ? 0.1 : 0.2
+            
+            // Плавная анимация смены цвета декоративного элемента
+            Behavior on color {
+                ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
+            }
+            
+            Behavior on opacity {
+                NumberAnimation { duration: 400; easing.type: Easing.InOutQuad }
+            }
+            
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.leftMargin: -50
@@ -77,6 +105,123 @@ Window {
                     to: 0.2
                     duration: 4000
                 }
+            }
+        }
+    }
+    
+    // Свитчер темы в правом верхнем углу - Toggle Switch
+    Rectangle {
+        id: themeToggle
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.topMargin: 20
+        anchors.rightMargin: 20
+        width: 100
+        height: 50
+        radius: 25
+        color: root.isDarkTheme ? "#2d3436" : "#e8eef2"
+        border.color: root.isDarkTheme ? "#636e72" : "#bdc3c7"
+        border.width: 2
+        z: 100
+        
+        // Плавная анимация смены цвета фона
+        Behavior on color {
+            ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
+        }
+        
+        Behavior on border.color {
+            ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
+        }
+        
+        // Слайдер (круглая кнопка, которая передвигается)
+        Rectangle {
+            id: slider
+            width: 42
+            height: 42
+            radius: 21
+            color: "#ffffff"
+            
+            // Позиция слайдера зависит от темы
+            x: root.isDarkTheme ? 54 : 4
+            y: 4
+            
+            // Плавная анимация движения слайдера
+            Behavior on x {
+                NumberAnimation { duration: 400; easing.type: Easing.InOutQuad }
+            }
+        }
+        
+        // Текст "☀️" (день/светлая тема) слева
+        Image {
+            x: 10
+            y: 10
+            width: 30
+            height: 30
+            source: "icons/sun.svg"
+            opacity: root.isDarkTheme ? 0.3 : 1
+            
+            // Плавная анимация прозрачности
+            Behavior on opacity {
+                NumberAnimation { duration: 400; easing.type: Easing.InOutQuad }
+            }
+        }
+        
+        // Текст "🌙" (ночь/тёмная тема) справа
+        Image {
+            x: 60
+            y: 10
+            width: 30
+            height: 30
+            source: "icons/moon.svg"
+            opacity: root.isDarkTheme ? 1 : 0.3
+            
+            // Плавная анимация прозрачности
+            Behavior on opacity {
+                NumberAnimation { duration: 400; easing.type: Easing.InOutQuad }
+            }
+        }
+        
+        // Область нажатия
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            hoverEnabled: true
+            
+            onClicked: {
+                // Переключаем тему с анимацией
+                root.isDarkTheme = !root.isDarkTheme
+            }
+            
+            // Эффект при наведении - легкое изменение масштаба
+            onEntered: {
+                themeToggleScaleAnim.start()
+            }
+            
+            onExited: {
+                themeToggleScaleAnim.stop()
+                themeToggle.scale = 1.0
+            }
+        }
+        
+        // Анимация при наведении
+        SequentialAnimation {
+            id: themeToggleScaleAnim
+            loops: Animation.Infinite
+            NumberAnimation {
+                target: themeToggle
+                property: "scale"
+                from: 1.0
+                to: 1.05
+                duration: 300
+                easing.type: Easing.InOutQuad
+            }
+            NumberAnimation {
+                target: themeToggle
+                property: "scale"
+                from: 1.05
+                to: 1.0
+                duration: 300
+                easing.type: Easing.InOutQuad
             }
         }
     }
@@ -157,8 +302,13 @@ Window {
             Layout.alignment: Qt.AlignHCenter
             font.pixelSize: 44
             font.weight: Font.Bold
-            color: "#1b5e20"
+            color: root.isDarkTheme ? "#4caf50" : "#1b5e20"
             font.family: "Segoe UI, Arial, sans-serif"
+            
+            // Плавная анимация смены цвета заголовка
+            Behavior on color {
+                ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
+            }
             
             // Анимация появления
             opacity: 0
@@ -184,9 +334,14 @@ Window {
             horizontalAlignment: Text.AlignHCenter
             font.pixelSize: 18
             font.family: "Segoe UI, Arial, sans-serif"
-            color: "#555555"
+            color: root.isDarkTheme ? "#cccccc" : "#555555"
             lineHeight: 1.6
             wrapMode: Text.WordWrap
+            
+            // Плавная анимация смены цвета описания
+            Behavior on color {
+                ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
+            }
             
             // Анимация появления
             opacity: 0
@@ -216,20 +371,26 @@ Window {
             Layout.preferredWidth: 240
             Layout.preferredHeight: 56
             
-            color: btnMouse.containsMouse ? "#2e7d32" : "#4caf50"
+            color: btnMouse.containsMouse ? (root.isDarkTheme ? "#66bb6a" : "#2e7d32") : (root.isDarkTheme ? "#43a047" : "#4caf50")
             radius: 12
             
             // Тень под кнопкой
             Rectangle {
                 anchors.fill: parent
                 anchors.margins: -4
-                color: "#00000015"
+                color: root.isDarkTheme ? "#00000045" : "#00000015"
                 radius: parent.radius
                 z: -1
+                
+                // Плавная анимация смены цвета тени
+                Behavior on color {
+                    ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
+                }
             }
             
+            // Плавная анимация смены цвета кнопки
             Behavior on color {
-                ColorAnimation { duration: 200 }
+                ColorAnimation { duration: 400; easing.type: Easing.InOutQuad }
             }
             
             // Масштабирование при наведении
