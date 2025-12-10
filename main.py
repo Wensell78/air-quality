@@ -30,7 +30,6 @@ class Controller(QObject):
     @Slot()
     def on_continue_clicked(self):
         """Обработчик нажатия кнопки "Продолжить" из QML"""
-        print("Пользователь нажал 'Продолжить'")
         self.continueClicked.emit()
         self.go_to_city_selection()
     
@@ -42,9 +41,7 @@ class Controller(QObject):
     @Slot(str)
     def on_city_selected(self, city_name):
         """Обработчик выбора города"""
-        print(f"Выбран город: {city_name}")
         self.citySelected.emit(city_name)
-        # Здесь можно добавить логику для загрузки данных о качестве воздуха
 
 
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -153,35 +150,17 @@ if __name__ == '__main__':
 
     # Загружаем главное окно с системой навигации
     qml_file = os.path.join(os.path.dirname(__file__), 'ui', 'main-window.qml')
-    print(f"Загружаю: {qml_file}")
     engine.load(QUrl.fromLocalFile(qml_file))
 
     if not engine.rootObjects():
         print("Ошибка загрузки QML.")
-        # Выводим ошибки загрузки
-        for error in engine.errors():
-            print(f"QML Error: {error}")
         sys.exit(-1)
-
-    print("QML загружен успешно")
     
     # Получаем корневой объект (главное окно) и показываем его в развернутом виде
-    root_objects = engine.rootObjects()
-    if root_objects:
-        root = root_objects[0]
-        controller.main_window = root
-        # Передаём ссылку на главное окно через контекст для доступа из компонентов
-        engine.rootContext().setContextProperty("mainWindow", root)
-        print("Главное окно найдено")
-        try:
-            root.showMaximized()
-            print("Окно развернуто")
-        except Exception as e:
-            print(f"Ошибка при showMaximized(): {e}")
-            try:
-                root.setProperty('visible', True)
-            except Exception as e2:
-                print(f"Ошибка при setProperty visible: {e2}")
+    root = engine.rootObjects()[0]
+    controller.main_window = root
+    engine.rootContext().setContextProperty("mainWindow", root)
+    root.showMaximized()
 
     sys.exit(app.exec())
 
